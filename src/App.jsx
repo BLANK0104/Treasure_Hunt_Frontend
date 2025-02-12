@@ -12,7 +12,7 @@ function App() {
           className="bg-blue-500 text-black px-4 py-2 rounded hover:bg-blue-700"
           onClick={() => setCount(count + 1)}
         >
-          Increment
+          Increment K
         </button>
       </div>
     </div>
