@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 
+{/* BUILD REST OF THE PARTICIPANT PAGE HERE */}
 function ParticipantPage() {
   return (
     <div>
