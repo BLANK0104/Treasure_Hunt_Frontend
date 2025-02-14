@@ -7,18 +7,20 @@ import Teams from "./pages/Teams";
 import Questions from "./pages/Questions";
 
 function Home() {
+  {/* INTEGRATE THE LOGIN PAGE HERE, AND USE THESE 2 BUTTONS TO REDIRECT TO ADMIN AND PARTICIPANT AFTER LOGIN */}
   return (
-    <>
-    {/* INTEGRATE THE LOGIN PAGE HERE, AND USE THESE 2 BUTTONS TO REDIRECT TO ADMIN AND PARTICIPANT AFTER LOGIN */}
-      <div style={{ display: "flex", gap: "10px" }}>
-        <Link to="/participant">
-          <button>Go to Participant Page</button>
-        </Link>
-        <Link to="/admin">
-          <button>Go to Admin Page</button>
-        </Link>
-      </div>
-    </>
+    <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "20px" }}>
+      <Link to="/participant">
+        <button className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition">
+          Go to Participant Page
+        </button>
+      </Link>
+      <Link to="/admin">
+        <button className="px-4 py-2 bg-purple-500 text-white rounded-lg shadow-md hover:bg-purple-600 transition">
+          Go to Admin Page
+        </button>
+      </Link>
+    </div>
   );
 }
 
