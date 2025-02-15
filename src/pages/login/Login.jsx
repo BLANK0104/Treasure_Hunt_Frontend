@@ -6,6 +6,7 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('participant'); // Default role
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -15,7 +16,7 @@ const Login = () => {
 
     const response = isLogin 
       ? await loginUser({ username, password })
-      : await registerUser({ username, password });
+      : await registerUser({ username, password, role });
 
     if (response.success) {
       if (isLogin) {
@@ -66,6 +67,33 @@ const Login = () => {
               />
             </div>
           </div>
+
+          {!isLogin && (
+            <div className="flex items-center justify-between">
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="role"
+                  value="admin"
+                  checked={role === 'admin'}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="form-radio"
+                />
+                <span className="ml-2">Admin</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="role"
+                  value="participant"
+                  checked={role === 'participant'}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="form-radio"
+                />
+                <span className="ml-2">Participant</span>
+              </label>
+            </div>
+          )}
 
           <div>
             <button

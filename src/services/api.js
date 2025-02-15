@@ -115,3 +115,58 @@ export const getAllQuestions = async () => {
     };
   }
 };
+
+export const createTeam = async (teamData) => {
+  try {
+    const response = await api.post('/team/create', teamData, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to create team'
+    };
+  }
+};
+
+export const getCurrentQuestion = async () => {
+  try {
+    const response = await api.get('/team/current-question', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to fetch question'
+    };
+  }
+};
+
+export const submitAnswer = async (questionId, formData) => {
+  try {
+    if (!questionId) {
+      throw new Error('Question ID is required');
+    }
+
+    const response = await api.post(`/team/submit/${questionId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        // Don't set Content-Type here, let the browser set it with the boundary
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Submit error:', error);
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to submit answer'
+    };
+  }
+};
