@@ -49,52 +49,20 @@ export const createQuestion = async (formData) => {
   }
 };
 
-export const getTeamAnswers = async () => {
-  try {
-    const response = await api.get('/team/submissions', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    return response.data;
-  } catch (error) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to fetch team submissions'
-    };
-  }
-};
-
-export const reviewAnswer = async (teamId, isAccepted) => {
-  try {
-    const response = await api.post(`/team/review/${teamId}`, 
-      { is_accepted: isAccepted },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      }
-    );
-    return response.data;
-  } catch (error) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to review answer'
-    };
-  }
-};
-
 export const getTeamResults = async () => {
   try {
-    const response = await api.get('/team/results', {
+    const response = await api.get('/teams/results', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+    console.log('Results response:', response.data); // Debug log
     return response.data;
   } catch (error) {
+    console.error('Error fetching results:', error);
     return {
       success: false,
+      results: [],
       message: error.response?.data?.message || 'Failed to fetch results'
     };
   }
@@ -167,6 +135,62 @@ export const submitAnswer = async (questionId, formData) => {
     return {
       success: false,
       message: error.response?.data?.message || 'Failed to submit answer'
+    };
+  }
+};
+
+export const getTeams = async () => {
+  try {
+    const response = await api.get('/teams', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    console.log('Teams API response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching teams:', error.response?.data || error);
+    return {
+      success: false,
+      teams: [],
+      message: error.response?.data?.message || 'Failed to fetch teams'
+    };
+  }
+};
+
+export const getTeamAnswers = async (username) => {
+  try {
+    const response = await api.get(`/teams/${username}/answers`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching team answers:', error);
+    return {
+      success: false,
+      answers: [],
+      message: error.response?.data?.message || 'Failed to fetch team answers'
+    };
+  }
+};
+
+export const reviewAnswer = async (username, answerId, isAccepted) => {
+  try {
+    const response = await api.post(`/teams/${username}/answers/${answerId}/review`, {
+      is_accepted: isAccepted
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error reviewing answer:', error);
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to review answer'
     };
   }
 };
