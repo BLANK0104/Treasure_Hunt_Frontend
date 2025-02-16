@@ -1,5 +1,6 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { loginUser, registerUser } from '../../services/api';
 
 const StarField = () => (
   <div style={{
@@ -70,10 +71,27 @@ const Login = () => {
   const [role, setRole] = useState('participant');
   const [error, setError] = useState('');
   const [activeInput, setActiveInput] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('Demo: Form submission simulated');
+    setError('');
+
+    const response = isLogin 
+      ? await loginUser({ username, password })
+      : await registerUser({ username, password, role });
+
+    if (response.success) {
+      if (isLogin) {
+        const { role } = response.user;
+        navigate(role === 'admin' ? '/admin' : '/participant');
+      } else {
+        setIsLogin(true);
+        setError('Registration successful! Please login.');
+      }
+    } else {
+      setError(response.message);
+    }
   };
 
   return (
