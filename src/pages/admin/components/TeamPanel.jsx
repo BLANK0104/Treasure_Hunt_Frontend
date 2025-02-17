@@ -32,6 +32,18 @@ const TeamPanel = () => {
     }
   };
 
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    // Remove any leading slashes and ensure single /uploads/
+    const cleanPath = url.startsWith('/') ? url.substring(1) : url;
+    // Remove /api/ from API URL if present and any trailing slashes
+    const baseUrl = import.meta.env.VITE_API_URL.replace('/api', '').replace(/\/$/, '');
+    
+    const fullUrl = `${baseUrl}/${cleanPath}`;
+    console.log('Generated image URL:', fullUrl); // Debug log
+    return fullUrl;
+  };
+
   const fetchTeamAnswers = async (username) => {
     try {
       setLoading(true);
@@ -140,22 +152,22 @@ const TeamPanel = () => {
                         <p className="mt-1">{answer.text_answer}</p>
                         
                         {answer.image_answer_url && (
-  <div className="mt-2">
-    <img
-      src={`${import.meta.env.VITE_API_URL}/uploads/${answer.image_answer_url.split('/').pop()}`}
-      alt="Answer submission"
-      className="max-w-md rounded-lg shadow-sm"
-      onError={(e) => {
-        console.error('Image load error:', e.target.src);
-        e.target.style.display = 'none';
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'text-red-500 text-sm mt-2';
-        errorDiv.textContent = 'Failed to load image';
-        e.target.parentElement.appendChild(errorDiv);
-      }}
-    />
-  </div>
-)}
+    <div className="mt-2">
+      <img
+        src={getImageUrl(answer.image_answer_url)}
+        alt="Answer submission"
+        className="max-w-md rounded-lg shadow-sm"
+        onError={(e) => {
+          console.error('Image load error:', e.target.src);
+          e.target.style.display = 'none';
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'text-red-500 text-sm mt-2';
+          errorDiv.textContent = 'Failed to load image';
+          e.target.parentElement.appendChild(errorDiv);
+        }}
+      />
+    </div>
+  )}
 
                       </div>
                     </div>
@@ -164,13 +176,13 @@ const TeamPanel = () => {
                       <div className="flex flex-col gap-2">
                         <button
                           onClick={() => handleReview(answer.id, true)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                          className="bg-green-600 hover:bg-green-700 text-black px-4 py-2 rounded-lg transition-colors"
                         >
                           Accept
                         </button>
                         <button
                           onClick={() => handleReview(answer.id, false)}
-                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                          className="bg-red-600 hover:bg-red-700 text-black px-4 py-2 rounded-lg transition-colors"
                         >
                           Reject
                         </button>

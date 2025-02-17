@@ -103,13 +103,15 @@ export const createTeam = async (teamData) => {
 
 export const getCurrentQuestion = async () => {
   try {
-    const response = await api.get('/team/current-question', {
+    const response = await api.get('/current-question', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+    console.log('Current question response:', response.data); // Debug log
     return response.data;
   } catch (error) {
+    console.error('Error fetching current question:', error);
     return {
       success: false,
       message: error.response?.data?.message || 'Failed to fetch question'
@@ -119,19 +121,16 @@ export const getCurrentQuestion = async () => {
 
 export const submitAnswer = async (questionId, formData) => {
   try {
-    if (!questionId) {
-      throw new Error('Question ID is required');
-    }
-
-    const response = await api.post(`/team/submit/${questionId}`, formData, {
+    const response = await api.post(`/submit/${questionId}`, formData, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
-        // Don't set Content-Type here, let the browser set it with the boundary
+        'Content-Type': 'multipart/form-data'
       }
     });
+    console.log('Submit response:', response.data); // Debug log
     return response.data;
   } catch (error) {
-    console.error('Submit error:', error);
+    console.error('Submit error:', error.response?.data || error);
     return {
       success: false,
       message: error.response?.data?.message || 'Failed to submit answer'

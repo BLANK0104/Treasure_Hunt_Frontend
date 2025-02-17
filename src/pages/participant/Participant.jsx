@@ -24,17 +24,23 @@ const Participant = () => {
       setLoading(true);
       setError(null);
       const response = await getCurrentQuestion();
+      console.log('Current question response:', response); // Debug log
       
-      if (response.success) {
-        if (response.completed) {
-          setCurrentQuestion({ completed: true });
-        } else {
-          setCurrentQuestion(response.question);
-        }
+      if (response.success && response.question) {
+        setCurrentQuestion({
+          id: response.question.id,
+          question: response.question.question || response.question.text, // Handle both property names
+          points: response.question.points || 0,
+          requires_image: Boolean(response.question.requires_image),
+          image_url: response.question.image_url || null
+        });
+      } else if (response.completed) {
+        setCurrentQuestion({ completed: true });
       } else {
-        setError(response.message || 'Failed to fetch question');
+        setError(response.message || 'No question available');
       }
     } catch (err) {
+      console.error('Error fetching question:', err);
       setError('Failed to fetch question');
     } finally {
       setLoading(false);
@@ -60,6 +66,7 @@ const Participant = () => {
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
+      setError(null); // Clear any previous errors
     } else {
       setImage(null);
       setImagePreview(null);
@@ -70,6 +77,16 @@ const Participant = () => {
     e.preventDefault();
     if (!currentQuestion?.id) {
       setError('No question to submit answer for');
+      return;
+    }
+
+    if (currentQuestion.requires_image && !image) {
+      setError('This question requires an image');
+      return;
+    }
+
+    if (!textAnswer.trim() && !image) {
+      setError('Please provide either a text answer or an image');
       return;
     }
 
@@ -87,6 +104,7 @@ const Participant = () => {
       }
 
       const response = await submitAnswer(currentQuestion.id, formData);
+      console.log('Submit response:', response); // Debug log
       
       if (response.success) {
         setSuccess('Answer submitted successfully!');
@@ -102,6 +120,7 @@ const Participant = () => {
         setError(response.message || 'Failed to submit answer');
       }
     } catch (err) {
+      console.error('Error submitting answer:', err);
       setError('Failed to submit answer');
     } finally {
       setSubmitting(false);
@@ -133,26 +152,30 @@ const Participant = () => {
     <div className="max-w-2xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">Current Question</h2>
       
-      <QuestionDisplay 
-        question={currentQuestion?.question}
-        points={currentQuestion?.points}
-        requiresImage={currentQuestion?.requires_image}
-        imageUrl={currentQuestion?.image_url}
-        apiUrl={import.meta.env.VITE_API_URL}
-      />
-
-      <AnswerForm 
-        textAnswer={textAnswer}
-        onTextChange={(e) => setTextAnswer(e.target.value)}
-        onImageChange={handleImageChange}
-        imagePreview={imagePreview}
-        requiresImage={currentQuestion?.requires_image}
-        submitting={submitting}
-        onSubmit={handleSubmit}
-      />
-
-      <ErrorAlert message={error} />
-      <SuccessAlert message={success} />
+      {currentQuestion && currentQuestion.question && (
+        <QuestionDisplay 
+          question={currentQuestion.question}
+          points={currentQuestion.points}
+          requiresImage={currentQuestion.requires_image}
+          imageUrl={currentQuestion.image_url}
+          apiUrl={import.meta.env.VITE_API_URL}
+        />
+      )}
+  
+      {currentQuestion && currentQuestion.question && (
+        <AnswerForm 
+          textAnswer={textAnswer}
+          onTextChange={(e) => setTextAnswer(e.target.value)}
+          onImageChange={handleImageChange}
+          imagePreview={imagePreview}
+          requiresImage={currentQuestion.requires_image}
+          submitting={submitting}
+          onSubmit={handleSubmit}
+        />
+      )}
+  
+      {error && <ErrorAlert message={error} />}
+      {success && <SuccessAlert message={success} />}
     </div>
   );
 };

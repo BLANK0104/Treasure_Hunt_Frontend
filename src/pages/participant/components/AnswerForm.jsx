@@ -54,7 +54,7 @@ const AnswerForm = ({
       <button
         type="submit"
         disabled={submitting}
-        className={`w-full py-3 px-4 rounded-md text-white font-medium transition-colors
+        className={`w-full py-3 px-4 rounded-md text-black font-medium transition-colors
           ${submitting 
             ? 'bg-gray-400 cursor-not-allowed' 
             : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
