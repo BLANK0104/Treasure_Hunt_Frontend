@@ -11,7 +11,11 @@ const Header = () => {
         {/* Animated Logo */}
         <div className="relative w-10 h-10 md:w-14 md:h-14 bg-gradient-to-r from-gray-800 to-gray-700 rounded-full flex items-center justify-center transform hover:scale-110 transition-transform duration-300 cursor-pointer">
           <div className="absolute inset-0 bg-cyan-500 rounded-full opacity-20 animate-pulse"></div>
-          <span className="text-black text-xs md:text-sm font-semibold">Logo</span>
+          <img 
+            src="/atw.png" 
+            alt="Logo" 
+            className="w-8 h-8 md:w-12 md:h-12 object-contain"
+          />
         </div>
 
         {/* Title with animated gradient and glow */}
