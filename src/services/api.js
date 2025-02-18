@@ -2,7 +2,40 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
+
+// Add request interceptor for auth token and debug logging
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  console.log('Request:', { url: config.url, method: config.method });
+  return config;
+});
+
+// Add response interceptor for debug logging
+api.interceptors.response.use(
+  (response) => {
+    console.log('Response:', { 
+      url: response.config.url, 
+      status: response.status, 
+      data: response.data 
+    });
+    return response;
+  },
+  (error) => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+    return Promise.reject(error);
+  }
+);
 
 export const loginUser = async (credentials) => {
   try {
@@ -13,9 +46,9 @@ export const loginUser = async (credentials) => {
     }
     return response.data;
   } catch (error) {
-    return { 
-      success: false, 
-      message: error.response?.data?.message || 'Login failed' 
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Login failed'
     };
   }
 };
