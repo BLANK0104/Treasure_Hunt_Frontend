@@ -103,10 +103,10 @@ const TeamPanel = () => {
   }
 
   return (
-    <div className="flex gap-6 p-6">
+    <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6">
       {/* Teams List */}
-      <div className="w-1/3 border-r pr-6">
-        <h2 className="text-2xl font-semibold mb-4">Teams</h2>
+      <div className="w-full lg:w-1/3 border-b lg:border-b-0 lg:border-r pb-4 lg:pb-0 lg:pr-6">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Teams</h2>
         {teams.length === 0 ? (
           <div className="text-gray-500">No teams found</div>
         ) : (
@@ -117,8 +117,8 @@ const TeamPanel = () => {
                 onClick={() => handleTeamClick(team)}
                 className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                   selectedTeam?.id === team.id
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'hover:bg-gray-100'
+                    ? 'bg-cyan-100 text-cyan-900'
+                    : 'hover:bg-gray-100 text-gray-800'
                 }`}
               >
                 <div className="font-medium">{team.username}</div>
@@ -132,72 +132,72 @@ const TeamPanel = () => {
       </div>
 
       {/* Team Answers */}
-      <div className="w-2/3">
+      <div className="w-full lg:w-2/3">
         {selectedTeam ? (
           <>
-            <h2 className="text-2xl font-semibold mb-4">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
               {selectedTeam.username}'s Answers
             </h2>
-            <div className="space-y-6">
+            <div className="space-y-4">
               {teamAnswers.map((answer) => (
-                <div key={answer.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-2">
-                      <h3 className="font-medium">Question {answer.question_number}</h3>
+                <div key={answer.id} className="border rounded-lg p-4 bg-white shadow-sm">
+                  <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                    <div className="space-y-2 w-full md:w-3/4">
+                      <h3 className="font-medium text-gray-800">Question {answer.question_number}</h3>
                       <p className="text-gray-600">{answer.question_text}</p>
                       <p className="text-sm text-blue-600">Points: {answer.points}</p>
                       
                       <div className="mt-4">
-                        <p className="font-medium">Answer:</p>
-                        <p className="mt-1">{answer.text_answer}</p>
+                        <p className="font-medium text-gray-800">Answer:</p>
+                        <p className="mt-1 text-gray-700">{answer.text_answer}</p>
                         
                         {answer.image_answer_url && (
-    <div className="mt-2">
-      <img
-        src={getImageUrl(answer.image_answer_url)}
-        alt="Answer submission"
-        className="max-w-md rounded-lg shadow-sm"
-        onError={(e) => {
-          console.error('Image load error:', e.target.src);
-          e.target.style.display = 'none';
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'text-red-500 text-sm mt-2';
-          errorDiv.textContent = 'Failed to load image';
-          e.target.parentElement.appendChild(errorDiv);
-        }}
-      />
-    </div>
-  )}
-
+                          <div className="mt-2">
+                            <img
+                              src={getImageUrl(answer.image_answer_url)}
+                              alt="Answer submission"
+                              className="w-full max-w-lg rounded-lg shadow-sm object-contain"
+                              style={{ maxHeight: '300px' }}
+                              onError={(e) => {
+                                console.error('Image load error:', e.target.src);
+                                e.target.style.display = 'none';
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'text-red-500 text-sm mt-2';
+                                errorDiv.textContent = 'Failed to load image';
+                                e.target.parentElement.appendChild(errorDiv);
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {!answer.is_reviewed && (
-                      <div className="flex flex-col gap-2">
-                        <button
-                          onClick={() => handleReview(answer.id, true)}
-                          className="bg-green-600 hover:bg-green-700 text-black px-4 py-2 rounded-lg transition-colors"
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => handleReview(answer.id, false)}
-                          className="bg-red-600 hover:bg-red-700 text-black px-4 py-2 rounded-lg transition-colors"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    )}
-
-                    {answer.is_reviewed && (
-                      <div className={`px-3 py-1 rounded-lg ${
-                        answer.is_accepted 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {answer.is_accepted ? 'Accepted' : 'Rejected'}
-                      </div>
-                    )}
+                    <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
+                      {!answer.is_reviewed ? (
+                        <>
+                          <button
+                            onClick={() => handleReview(answer.id, true)}
+                            className="flex-1 md:flex-none bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleReview(answer.id, false)}
+                            className="flex-1 md:flex-none bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      ) : (
+                        <div className={`text-center px-3 py-1 rounded-lg ${
+                          answer.is_accepted 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {answer.is_accepted ? 'Accepted' : 'Rejected'}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
