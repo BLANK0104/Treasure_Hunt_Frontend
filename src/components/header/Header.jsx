@@ -29,15 +29,16 @@ const Header = () => {
           <div className="absolute -inset-1 bg-cyan-500 opacity-20 group-hover:opacity-30 blur-lg transition-all duration-300"></div>
         </div>
 
-       <button 
-  onClick={() => {
-    console.log('User logged out');
-    navigate('/login');
-  }}
-  className="relative w-10 h-10 md:w-14 md:h-14 rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 flex items-center justify-center cursor-pointer hover:from-gray-700 hover:to-gray-600 transition-all duration-300"
->
-  <X className="w-4 h-4 md:w-6 md:h-6 text-cyan-400 transform transition-transform duration-300 hover:rotate-90" />
-</button>
+        <button 
+          onClick={() => {
+            console.log('User logged out');
+            navigate('/login');
+          }}
+          className="relative w-10 h-10 md:w-14 md:h-14 rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 flex items-center justify-center cursor-pointer hover:from-gray-700 hover:to-gray-600 transition-all duration-300"
+        >
+          <X className="w-4 h-4 md:w-6 md:h-6 text-cyan-400 transform transition-transform duration-300 hover:rotate-90" />
+          <span className="sr-only">Logout</span>
+        </button>
       </div>
     </header>
   );

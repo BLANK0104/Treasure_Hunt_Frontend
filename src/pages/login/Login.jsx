@@ -100,11 +100,11 @@ const Login = () => {
   return (
     <div style={{
       position: 'relative',
-      minHeight: '100vh',
+      minHeight: '85vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1rem',
+      padding: '0.5rem',
       fontFamily: "'Poppins', sans-serif",
       color: '#fff'
     }}>
@@ -129,9 +129,9 @@ const Login = () => {
         backdropFilter: 'blur(10px)',
         borderRadius: '12px',
         boxShadow: '0 0 20px rgba(0,255,255,0.3)',
-        padding: '30px',
+        padding: '40px',
         width: '100%',
-        maxWidth: '400px',
+        maxWidth: '450px',
         border: '1px solid rgba(0,255,255,0.1)',
         transition: 'box-shadow 0.3s ease'
       }}>

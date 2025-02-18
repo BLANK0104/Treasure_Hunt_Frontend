@@ -9,15 +9,17 @@ import './App.css';
 
 const App = () => (
   <Router>
-    <div>
+    <div className="min-h-screen flex flex-col justify-between">
       <Header />
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/participant" element={<ParticipantPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
+      <main className="flex items-center justify-center">
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/participant" element={<ParticipantPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </main>
       <Footer />
     </div>
   </Router>
