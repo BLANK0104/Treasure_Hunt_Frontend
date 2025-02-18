@@ -77,9 +77,12 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
+    // Convert username to lowercase before sending to the API
+    const lowercaseUsername = username.toLowerCase();
+
     const response = isLogin 
-      ? await loginUser({ username, password })
-      : await registerUser({ username, password, role });
+      ? await loginUser({ username: lowercaseUsername, password })
+      : await registerUser({ username: lowercaseUsername, password, role });
 
     if (response.success) {
       if (isLogin) {
