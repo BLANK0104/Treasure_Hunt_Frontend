@@ -5,6 +5,8 @@ const ViewQuestions = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const apiBaseUrl = import.meta.env.VITE_API_URL.split('/api')[0];
+
 
   useEffect(() => {
     fetchQuestions();
@@ -37,17 +39,14 @@ const ViewQuestions = () => {
           <div key={question.id} className="bg-gray-50 p-4 rounded-lg shadow">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
-                <p className="font-medium">Question: {question.question}</p>
+                <p className="text-m text-gray-600">Question: {question.question}</p>
                 <p className="text-sm text-gray-600">Points: {question.points}</p>
-                {question.image_url && (
-                  <p className="text-xs text-gray-500">Image URL: {question.image_url}</p>
-                )}
               </div>
             </div>
             {question.image_url && (
               <div className="mt-4">
                 <img
-                  src={`http://localhost:5000${question.image_url}`}
+                  src={`${apiBaseUrl}${question.image_url}`}
                   alt={`Question ${question.id}`}
                   className="max-w-full h-auto rounded"
                   onError={(e) => {
@@ -63,5 +62,6 @@ const ViewQuestions = () => {
     </div>
   );
 };
+
 
 export default ViewQuestions;
