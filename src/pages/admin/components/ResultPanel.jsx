@@ -46,7 +46,7 @@ const ResultPanel = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">Team Results</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-gray-800">Team Results</h2>
       
       {results.length === 0 ? (
         <div className="text-gray-500 bg-white p-4 rounded-lg shadow">
@@ -75,16 +75,16 @@ const ResultPanel = () => {
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`${
-                      index === 0 ? 'text-yellow-600' :
-                      index === 1 ? 'text-gray-600' :
-                      index === 2 ? 'text-amber-700' : ''
+                      index === 0 ? 'text-yellow-500' :
+                      index === 1 ? 'text-gray-400' :
+                      index === 2 ? 'text-amber-700' : 'text-black'
                     }`}>
                       {index + 1}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{result.username}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{result.total_points}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{result.questions_solved}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-800">{result.username}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-800">{result.total_points}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-800">{result.questions_solved}</td>
                 </tr>
               ))}
             </tbody>
