@@ -1,120 +1,110 @@
-import React from 'react';
+// components/AnswerForm.jsx
 import { motion } from 'framer-motion';
 
-const AnswerForm = ({
-  textAnswer,
-  onTextChange,
-  onImageChange,
-  imagePreview,
+const AnswerForm = ({ 
+  textAnswer, 
+  onTextChange, 
+  onImageChange, 
+  imagePreview, 
   requiresImage,
   submitting,
-  onSubmit,
-  error,
-  success
+  onSubmit 
 }) => {
   return (
-    <motion.form 
-      onSubmit={onSubmit} 
-      className="space-y-6 bg-gray-900 p-6 rounded-lg shadow-lg border border-gray-700"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <label className="block text-sm font-medium text-cyan-300 mb-2">
-          Text Answer *
+    <form onSubmit={onSubmit} className="space-y-6 mt-6">
+      <div className="space-y-3">
+        <label className="block text-cyan-200 font-medium">
+          Your Answer:
         </label>
         <textarea
           value={textAnswer}
           onChange={onTextChange}
-          className="w-full px-3 py-2 border border-gray-700 rounded-md shadow-sm bg-gray-800 text-white focus:ring-cyan-500 focus:border-cyan-500"
           rows="4"
-          placeholder="Enter your answer here..."
-          required
+          className="w-full p-3 bg-gray-900/70 border border-cyan-800/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white"
+          placeholder="Type your answer here..."
         />
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <label className="block text-sm font-medium text-cyan-300 mb-2">
-          Upload Image {requiresImage && '*'}
-          <span className="text-sm text-gray-400 ml-2">(Optional unless marked with *)</span>
+      <div className="space-y-3">
+        <label className="block text-cyan-200 font-medium flex justify-between items-center">
+          <span>{requiresImage ? "Image (Required):" : "Image (Optional):"}</span>
+          {requiresImage && <span className="text-xs text-cyan-400">* Required for this question</span>}
         </label>
-        <input
-          type="file"
-          onChange={onImageChange}
-          accept="image/*"
-          className="w-full border border-gray-700 rounded-md p-2 shadow-sm bg-gray-800 text-white focus:ring-cyan-500 focus:border-cyan-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-cyan-600 file:text-white hover:file:bg-cyan-700"
-          required={requiresImage}
-        />
-        {imagePreview && (
-          <motion.div 
-            className="mt-3 border border-cyan-400 rounded-lg p-3"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
-            <p className="text-sm font-medium text-cyan-300 mb-2">Preview:</p>
-            <img 
-              src={imagePreview}
-              alt="Answer Preview" 
-              className="max-w-full h-auto max-h-60 rounded-lg shadow-lg transition-transform transform hover:scale-105"
-            />
-          </motion.div>
-        )}
-      </motion.div>
+        
+        <div className="flex items-center space-x-4">
+          <label className="cursor-pointer flex-1">
+            <div className="p-4 border-2 border-dashed border-cyan-700 rounded-lg text-center hover:border-cyan-500 transition-colors">
+              <div className="text-cyan-500 mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div className="text-cyan-200 text-sm">Click to select an image</div>
+              <div className="text-gray-500 text-xs mt-1">Max size: 5MB</div>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={onImageChange} 
+                className="hidden" 
+              />
+            </div>
+          </label>
+          
+          {imagePreview && (
+            <div className="w-24 h-24 relative overflow-hidden rounded-lg border border-cyan-700">
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="w-full h-full object-cover" 
+              />
+              <button
+                type="button"
+                onClick={() => onImageChange({ target: { files: [] } })}
+                className="absolute top-1 right-1 bg-red-500 rounded-full p-1 text-white text-xs"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       <motion.button
         type="submit"
         disabled={submitting}
-        className={`w-full py-3 px-4 rounded-md text-black font-medium transition-all transform
-          ${submitting 
-            ? 'bg-gray-600 cursor-not-allowed' 
-            : 'bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 hover:scale-105 hover:shadow-lg'
-          }`}
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        whileHover={{ scale: submitting ? 1 : 1.05 }}
-        whileTap={{ scale: submitting ? 1 : 0.95 }}
+        className="w-full py-4 rounded-lg font-bold text-lg relative overflow-hidden group"
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
       >
-        {submitting ? (
-          <div className="flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-            Submitting...
-          </div>
-        ) : (
-          'Submit Answer'
-        )}
+        {/* Base background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-indigo-600 opacity-90"></div>
+        
+        {/* Subtle animated highlight */}
+        <div className="absolute inset-0 w-full bg-gradient-to-r from-transparent via-white to-transparent opacity-20 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+        
+        {/* Button content */}
+        <div className="relative flex items-center justify-center space-x-2">
+          {submitting ? (
+            <>
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Submitting...</span>
+            </>
+          ) : (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+              <span>Submit Answer</span>
+            </>
+          )}
+        </div>
       </motion.button>
-
-      {error && (
-        <motion.div
-          className="text-red-500 text-sm mt-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          {error}
-        </motion.div>
-      )}
-
-      {success && (
-        <motion.div
-          className="text-green-500 text-sm mt-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          {success}
-        </motion.div>
-      )}
-    </motion.form>
+    </form>
   );
 };
 
