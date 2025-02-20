@@ -5,8 +5,8 @@ const ViewQuestions = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const apiBaseUrl = import.meta.env.VITE_API_URL.split('/api')[0];
-
 
   useEffect(() => {
     fetchQuestions();
@@ -16,7 +16,7 @@ const ViewQuestions = () => {
     try {
       const response = await getAllQuestions();
       if (response.success) {
-        console.log('Fetched questions:', response.questions); // Debug log
+        console.log('Fetched questions:', response.questions); 
         setQuestions(response.questions);
       } else {
         setError(response.message);
@@ -28,14 +28,25 @@ const ViewQuestions = () => {
     }
   };
 
+  const filteredQuestions = questions.filter((q) =>
+    q.question.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) return <div className="text-center">Loading questions...</div>;
   if (error) return <div className="text-red-600">{error}</div>;
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold mb-4">All Questions</h2>
+      <input
+        type="text"
+        placeholder="Search questions..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+      />
       <div className="grid gap-6 md:grid-cols-2">
-        {questions.map((question) => (
+        {filteredQuestions.map((question) => (
           <div key={question.id} className="bg-gray-50 p-4 rounded-lg shadow">
             <div className="flex justify-between items-start">
               <div className="space-y-2">
@@ -62,6 +73,5 @@ const ViewQuestions = () => {
     </div>
   );
 };
-
 
 export default ViewQuestions;
