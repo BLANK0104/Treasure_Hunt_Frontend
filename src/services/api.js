@@ -134,14 +134,13 @@ export const createTeam = async (teamData) => {
   }
 };
 
-export const getCurrentQuestion = async () => {
+export const getCurrentQuestion = async (isBonus = false) => {
   try {
-    const response = await api.get('/current-question', {
+    const response = await api.get(`/current-question?is_bonus=${isBonus}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
-    console.log('Current question response:', response.data); // Debug log
     return response.data;
   } catch (error) {
     console.error('Error fetching current question:', error);

@@ -24,35 +24,45 @@ const Participant = () => {
   const [questionNumber, setQuestionNumber] = useState(1);
   const [totalEstimatedQuestions, setTotalEstimatedQuestions] = useState(5);
   const [isBonusMode, setIsBonusMode] = useState(false);
+  const [completedBonus, setCompletedBonus] = useState(0);  // Moved up
   const [bonusCompleted, setBonusCompleted] = useState(false);
 
   useEffect(() => {
-    fetchCurrentQuestion();
-  }, []);
+    console.log({
+      questionNumber,
+      completedBonus,
+      isBonusMode
+    });
+  }, [questionNumber, completedBonus, isBonusMode]);
+
+  useEffect(() => {
+    fetchCurrentQuestion(false);
+  }, []); 
 
   const fetchCurrentQuestion = async (isBonus = false) => {
     try {
       setLoading(true);
       setError(null);
       const response = await getCurrentQuestion(isBonus);
-      console.log('Current question response:', response);
       
-      if (response.success && response.question) {
-        setCurrentQuestion({
-          id: response.question.id,
-          question: response.question.question || response.question.text,
-          points: response.question.points || 0,
-          requires_image: Boolean(response.question.requires_image),
-          image_url: response.question.image_url || null,
-          is_bonus: response.question.is_bonus || false
-        });
+      if (response.success) {
+        if (response.question) {
+          setCurrentQuestion({
+            id: response.question.id,
+            question: response.question.text,
+            points: response.question.points,
+            requires_image: Boolean(response.question.requires_image),
+            image_url: response.question.image_url,
+            is_bonus: response.question.is_bonus
+          });
         
-        if (response.question_number && response.total_questions) {
           setQuestionNumber(response.question_number);
-          setTotalEstimatedQuestions(response.total_questions);
+          setTotalEstimatedQuestions(response.total_questions || 75); // Set a default value
+          setCompletedBonus(response.completed_bonus || 0);
+          setBonusCompleted(false); // Reset bonus completed state
+        } else if (response.completed) {
+          setCurrentQuestion({ completed: true });
         }
-      } else if (response.completed) {
-        setCurrentQuestion({ completed: true });
       } else {
         setError(response.message || 'No question available');
       }
@@ -119,14 +129,13 @@ const Participant = () => {
       if (image) {
         formData.append('image', image);
       }
-
+  
       const response = await submitAnswer(currentQuestion.id, formData);
-      console.log('Submit response:', response);
       
       if (response.success) {
         if (currentQuestion.is_bonus) {
+          setCompletedBonus(prev => prev + 1);
           setBonusCompleted(true);
-          setIsBonusMode(false);
         }
         setSuccess('Answer submitted successfully!');
         setTextAnswer('');
@@ -186,12 +195,12 @@ const Participant = () => {
         </h2>
         
         <BonusQuestionHandler
-          questionNumber={questionNumber}
-          onSwitchToBonus={handleSwitchToBonus}
-          onSwitchToNormal={handleSwitchToNormal}
-          isBonusMode={isBonusMode}
-          bonusCompleted={bonusCompleted}
-        />
+      questionNumber={questionNumber}
+      onSwitchToBonus={handleSwitchToBonus}
+      onSwitchToNormal={handleSwitchToNormal}
+      isBonusMode={isBonusMode}
+      completedBonus={completedBonus}
+    />
         
         <QuestionDisplay 
           question={currentQuestion?.question}

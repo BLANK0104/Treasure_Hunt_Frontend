@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 const BonusQuestionHandler = ({ 
@@ -6,15 +6,24 @@ const BonusQuestionHandler = ({
   onSwitchToBonus, 
   onSwitchToNormal, 
   isBonusMode,
-  bonusCompleted
+  completedBonus 
 }) => {
   const [showBonusButton, setShowBonusButton] = useState(false);
 
   useEffect(() => {
-    // Show bonus button at questions 15, 30, 45, etc.
-    const shouldShowBonus = questionNumber % 15 === 0 && !bonusCompleted;
+    // Show bonus button when we reach questions 16, 31, 46, etc.
+    const currentMilestone = Math.floor((questionNumber - 1) / 15);
+    const shouldShowBonus = questionNumber % 15 === 1 && completedBonus < currentMilestone;
+    
+    console.log({
+      questionNumber,
+      currentMilestone,
+      completedBonus,
+      shouldShowBonus
+    });
+
     setShowBonusButton(shouldShowBonus);
-  }, [questionNumber, bonusCompleted]);
+  }, [questionNumber, completedBonus]);
 
   if (!showBonusButton && !isBonusMode) return null;
 
