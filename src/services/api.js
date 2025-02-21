@@ -196,12 +196,23 @@ export const getTeamAnswers = async (username) => {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
-    return response.data;
+
+    if (response.data.success) {
+      return {
+        success: true,
+        answers: response.data.answers.map(answer => ({
+          ...answer,
+          submitted_at: answer.submitted_at ? new Date(answer.submitted_at) : null,
+          reviewed_at: answer.reviewed_at ? new Date(answer.reviewed_at) : null
+        }))
+      };
+    } else {
+      throw new Error(response.data.message);
+    }
   } catch (error) {
     console.error('Error fetching team answers:', error);
     return {
       success: false,
-      answers: [],
       message: error.response?.data?.message || 'Failed to fetch team answers'
     };
   }
@@ -209,13 +220,15 @@ export const getTeamAnswers = async (username) => {
 
 export const reviewAnswer = async (username, answerId, isAccepted) => {
   try {
-    const response = await api.post(`/teams/${username}/answers/${answerId}/review`, {
-      is_accepted: isAccepted
-    }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
+    const response = await api.post(
+      `/teams/${username}/answers/${answerId}/review`,
+      { isAccepted },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
       }
-    });
+    );
     return response.data;
   } catch (error) {
     console.error('Error reviewing answer:', error);

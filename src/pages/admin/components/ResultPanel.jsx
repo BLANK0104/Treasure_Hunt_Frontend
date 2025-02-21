@@ -10,6 +10,13 @@ const ResultPanel = () => {
     fetchResults();
   }, []);
 
+  const formatTime = (minutes) => {
+    if (!minutes) return 'N/A';
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours}h ${remainingMinutes}m`;
+  };
+
   const fetchResults = async () => {
     try {
       setLoading(true);
@@ -61,30 +68,32 @@ const ResultPanel = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Points</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Questions Solved</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Time</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Submission</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {results.map((result, index) => (
                 <tr 
-                  key={result.id} 
+                  key={result.username} 
                   className={`${
                     index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                   } ${
                     index < 3 ? 'font-semibold' : ''
                   }`}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`${
-                      index === 0 ? 'text-yellow-500' :
-                      index === 1 ? 'text-gray-400' :
-                      index === 2 ? 'text-amber-700' : 'text-black'
-                    }`}>
-                      {index + 1}
-                    </span>
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-800">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-800">{result.username}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-800">{result.total_points}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-800">{result.questions_solved}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                    {result.normal_solved} + {result.bonus_solved} bonus
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                    {formatTime(result.total_time)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-500 text-sm">
+                    {result.last_submission_time || 'N/A'}
+                  </td>
                 </tr>
               ))}
             </tbody>

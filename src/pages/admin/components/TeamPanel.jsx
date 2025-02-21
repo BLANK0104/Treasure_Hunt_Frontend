@@ -35,6 +35,19 @@ const TeamPanel = () => {
     }
   };
 
+  const formatDateTime = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    return new Date(timestamp).toLocaleString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+  };
+
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
@@ -61,14 +74,15 @@ const TeamPanel = () => {
       const response = await getTeamAnswers(username);
       
       if (response.success) {
-        console.log('Team answers fetched:', response.answers); // Debug log
-        setTeamAnswers(response.answers);
+        setTeamAnswers(response.answers || []);
       } else {
         setError(response.message);
+        setTeamAnswers([]);
       }
     } catch (err) {
+      console.error('Error fetching team answers:', err);
       setError('Failed to fetch team answers');
-      console.error('Error:', err);
+      setTeamAnswers([]);
     } finally {
       setLoading(false);
     }
@@ -79,20 +93,36 @@ const TeamPanel = () => {
     fetchTeamAnswers(team.username);
   };
 
-  const handleReview = async (answerId, isAccepted) => {
+  const handleReview = async (answerId, isAccepted, event) => {
     try {
+      // Prevent default button behavior
+      event.preventDefault();
+      
       setError(null);
+      console.log('Reviewing answer:', { answerId, isAccepted });
+  
       const response = await reviewAnswer(selectedTeam.username, answerId, isAccepted);
       
       if (response.success) {
-        // Refresh answers after review
-        fetchTeamAnswers(selectedTeam.username);
+        // Update the answer in the local state immediately
+        setTeamAnswers(prevAnswers => 
+          prevAnswers.map(answer => 
+            answer.id === answerId 
+              ? {
+                  ...answer,
+                  is_reviewed: true,
+                  is_accepted: isAccepted,
+                  reviewed_at: new Date().toISOString()
+                }
+              : answer
+          )
+        );
       } else {
-        setError(response.message);
+        setError(response.message || 'Failed to review answer');
       }
     } catch (err) {
+      console.error('Error in handleReview:', err);
       setError('Failed to review answer');
-      console.error('Error:', err);
     }
   };
 
@@ -150,7 +180,20 @@ const TeamPanel = () => {
                 <div key={answer.id} className="border rounded-lg p-4 bg-white shadow-sm">
                   <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                     <div className="space-y-2 w-full md:w-3/4">
-                      <h3 className="font-medium text-gray-800">Question {answer.question_number}</h3>
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-medium text-gray-800">
+                          Question {answer.question_number}
+                          {answer.is_bonus && ' (Bonus)'}
+                        </h3>
+                        <div className="text-sm text-gray-500">
+                          <div>Submitted: {formatDateTime(answer.submitted_at)}</div>
+                          {answer.is_reviewed && (
+                            <div className="mt-1">
+                              Reviewed: {formatDateTime(answer.reviewed_at)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       <p className="text-gray-600">{answer.question_text}</p>
                       <p className="text-sm text-blue-600">Points: {answer.points}</p>
                       
@@ -180,31 +223,33 @@ const TeamPanel = () => {
                     </div>
 
                     <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
-                      {!answer.is_reviewed ? (
-                        <>
-                          <button
-                            onClick={() => handleReview(answer.id, true)}
-                            className="flex-1 md:flex-none bg-green-500 hover:bg-green-600 text-gray-800 px-4 py-2 rounded-lg transition-colors text-sm md:text-base outline-1 outline-gray-300"
-                          >
-                            Accept
-                          </button>
-                          <button
-                            onClick={() => handleReview(answer.id, false)}
-                            className="flex-1 md:flex-none bg-red-500 hover:bg-red-600 text-gray-800 px-4 py-2 rounded-lg transition-colors text-sm md:text-base outline-1 outline-gray-300"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      ) : (
-                        <div className={`text-center px-3 py-1 rounded-lg ${
-                          answer.is_accepted 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {answer.is_accepted ? 'Accepted' : 'Rejected'}
-                        </div>
-                      )}
-                    </div>
+  {!answer.is_reviewed ? (
+    <>
+      <button
+  onClick={(e) => handleReview(answer.id, true, e)}
+  className="flex-1 md:flex-none bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
+  disabled={loading}
+>
+  {loading ? 'Processing...' : 'Accept'}
+</button>
+<button
+  onClick={(e) => handleReview(answer.id, false, e)}
+  className="flex-1 md:flex-none bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
+  disabled={loading}
+>
+  {loading ? 'Processing...' : 'Reject'}
+</button>
+    </>
+  ) : (
+    <div className={`text-center px-3 py-1 rounded-lg ${
+      answer.is_accepted 
+        ? 'bg-green-100 text-green-800' 
+        : 'bg-red-100 text-red-800'
+    }`}>
+      {answer.is_accepted ? 'Accepted' : 'Rejected'}
+    </div>
+  )}
+</div>
                   </div>
                 </div>
               ))}
