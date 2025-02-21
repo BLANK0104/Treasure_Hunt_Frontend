@@ -74,7 +74,7 @@ const QuestionPanel = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-100 mb-2">
             Question Text *
           </label>
           <textarea
@@ -87,7 +87,7 @@ const QuestionPanel = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-100 mb-2">
             Points *
           </label>
           <input
@@ -101,14 +101,14 @@ const QuestionPanel = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium mb-2.5">
             Image (Optional)
           </label>
           <input
             type="file"
             onChange={handleImageChange}
             accept="image/*"
-            className="w-full"
+            className="w-full p-1.5 text-gray-100 mb-5 border border-gray-300 rounded-md"
           />
           {preview && (
             <div className="mt-2">
@@ -119,8 +119,7 @@ const QuestionPanel = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-black py-2 px-4 rounded-md hover:bg-blue-700"
-        >
+          className="w-full text-black py-2 px-4 rounded-md hover:bg-amber-50">
           Create Question
         </button>
       </form>

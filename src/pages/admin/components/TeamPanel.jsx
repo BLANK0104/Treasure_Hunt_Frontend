@@ -106,7 +106,7 @@ const TeamPanel = () => {
     <div className="flex flex-col lg:flex-row gap-6 p-4 lg:p-6">
       {/* Teams List */}
       <div className="w-full lg:w-1/3 border-b lg:border-b-0 lg:border-r pb-4 lg:pb-0 lg:pr-6">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Teams</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-200">Teams</h2>
         <input
           type="text"
           placeholder="Search teams..."
@@ -124,7 +124,7 @@ const TeamPanel = () => {
                 onClick={() => handleTeamClick(team)}
                 className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
                   selectedTeam?.id === team.id
-                    ? 'bg-cyan-100 text-cyan-900'
+                    ? 'bg-cyan-100 text-gray-900 outline-4 outline-cyan-600'
                     : 'hover:bg-gray-100 text-gray-800'
                 }`}
               >
@@ -142,7 +142,7 @@ const TeamPanel = () => {
       <div className="w-full lg:w-2/3">
         {selectedTeam ? (
           <>
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+            <h2 className="text-2xl font-semibold mb-4 text-gray-300">
               {selectedTeam.username}'s Answers
             </h2>
             <div className="space-y-4">
@@ -184,13 +184,13 @@ const TeamPanel = () => {
                         <>
                           <button
                             onClick={() => handleReview(answer.id, true)}
-                            className="flex-1 md:flex-none bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
+                            className="flex-1 md:flex-none bg-green-500 hover:bg-green-600 text-gray-800 px-4 py-2 rounded-lg transition-colors text-sm md:text-base outline-1 outline-gray-300"
                           >
                             Accept
                           </button>
                           <button
                             onClick={() => handleReview(answer.id, false)}
-                            className="flex-1 md:flex-none bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
+                            className="flex-1 md:flex-none bg-red-500 hover:bg-red-600 text-gray-800 px-4 py-2 rounded-lg transition-colors text-sm md:text-base outline-1 outline-gray-300"
                           >
                             Reject
                           </button>
