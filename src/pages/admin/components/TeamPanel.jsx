@@ -3,10 +3,12 @@ import { getTeams, getTeamAnswers, reviewAnswer } from '../../../services/api';
 
 const TeamPanel = () => {
   const [teams, setTeams] = useState([]);
+  const [filteredTeams, setFilteredTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [teamAnswers, setTeamAnswers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchTeams();
@@ -21,6 +23,7 @@ const TeamPanel = () => {
       if (response.success) {
         console.log('Teams fetched:', response.teams); // Debug log
         setTeams(response.teams);
+        setFilteredTeams(response.teams);
       } else {
         setError(response.message);
       }
@@ -30,6 +33,13 @@ const TeamPanel = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+    const filtered = teams.filter(team => team.username.toLowerCase().includes(query));
+    setFilteredTeams(filtered);
   };
 
   const getImageUrl = (url) => {
@@ -88,17 +98,7 @@ const TeamPanel = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-xl text-gray-600">Loading...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-xl text-red-600">{error}</div>
-      </div>
+      <div className="flex justify-center items-center h-64"></div>
     );
   }
 
@@ -107,11 +107,18 @@ const TeamPanel = () => {
       {/* Teams List */}
       <div className="w-full lg:w-1/3 border-b lg:border-b-0 lg:border-r pb-4 lg:pb-0 lg:pr-6">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Teams</h2>
-        {teams.length === 0 ? (
+        <input
+          type="text"
+          placeholder="Search teams..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+        />
+        {filteredTeams.length === 0 ? (
           <div className="text-gray-500">No teams found</div>
         ) : (
           <div className="space-y-2">
-            {teams.map((team) => (
+            {filteredTeams.map((team) => (
               <button
                 key={team.id}
                 onClick={() => handleTeamClick(team)}
