@@ -46,7 +46,7 @@ const ResultPanel = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800">Team Results</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-gray-300">Team Results</h2>
       
       {results.length === 0 ? (
         <div className="text-gray-500 bg-white p-4 rounded-lg shadow">

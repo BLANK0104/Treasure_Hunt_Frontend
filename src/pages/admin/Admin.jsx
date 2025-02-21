@@ -37,7 +37,7 @@ const StarField = () => (
 );
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState('questions');
+  const [activeTab, setActiveTab] = useState('Questions');
 
   return (
     <div style={{
@@ -95,7 +95,7 @@ const Admin = () => {
   marginBottom: '20px',
   width: '100%' 
 }}>
-  {['questions', 'view questions', 'teams', 'results'].map((tab) => (
+  {['Questions', 'View Questions', 'Teams', 'Results'].map((tab) => (
     <button
       key={tab}
       onClick={() => setActiveTab(tab)}
@@ -127,10 +127,10 @@ const Admin = () => {
           border: '1px solid rgba(0,255,255,0.2)',
           boxShadow: '0 0 15px rgba(0,255,255,0.3)'
         }}>
-          {activeTab === 'questions' && <QuestionPanel />}
-          {activeTab === 'view questions' && <ViewQuestions />}
-          {activeTab === 'teams' && <TeamPanel />}
-          {activeTab === 'results' && <ResultPanel />}
+          {activeTab === 'Questions' && <QuestionPanel />}
+          {activeTab === 'View Questions' && <ViewQuestions />}
+          {activeTab === 'Teams' && <TeamPanel />}
+          {activeTab === 'Results' && <ResultPanel />}
         </div>
       </div>
     </div>
