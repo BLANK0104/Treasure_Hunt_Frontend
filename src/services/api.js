@@ -1,5 +1,16 @@
 import axios from 'axios';
 
+const generateDeviceId = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
+const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
+localStorage.setItem('deviceId', deviceId);
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
@@ -39,7 +50,10 @@ api.interceptors.response.use(
 
 export const loginUser = async (credentials) => {
   try {
-    const response = await api.post('/users/login', credentials);
+    const response = await api.post('/users/login', {
+      ...credentials,
+      deviceId
+    });
     if (response.data.success) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -52,6 +66,42 @@ export const loginUser = async (credentials) => {
     };
   }
 };
+
+
+export const logoutUser = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('deviceId');
+      return { success: true };
+    }
+
+    // Remove /api prefix since it's already in the baseURL
+    const response = await api.post('/users/logout', { deviceId });
+    
+    // Clear all local storage items
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('deviceId');
+
+    return {
+      success: true,
+      message: response.data?.message || 'Logged out successfully'
+    };
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Still remove local storage items even if server request fails
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('deviceId');
+    return {
+      success: true,
+      message: 'Logged out locally'
+    };
+  }
+};
+
 
 export const registerUser = async (userData) => {
   try {
