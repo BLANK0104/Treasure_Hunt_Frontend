@@ -117,6 +117,12 @@ export const registerUser = async (userData) => {
 
 export const createQuestion = async (formData) => {
   try {
+    const requires_image = formData.get('requires_image') === 'true';
+    const is_bonus = formData.get('is_bonus') === 'true';
+    
+    formData.set('requires_image', requires_image);
+    formData.set('is_bonus', is_bonus);
+
     const response = await api.post('/questions', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

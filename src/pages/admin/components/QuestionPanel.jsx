@@ -4,7 +4,9 @@ import { createQuestion } from '../../../services/api';
 const QuestionPanel = () => {
   const [formData, setFormData] = useState({
     question: '',
-    points: ''
+    points: '',
+    requires_image: false,
+    is_bonus: false
   });
   const [image, setImage] = useState(null);
   const [error, setError] = useState('');
@@ -37,6 +39,8 @@ const QuestionPanel = () => {
     const submitData = new FormData();
     submitData.append('question', formData.question);
     submitData.append('points', formData.points);
+    submitData.append('requires_image', formData.requires_image);
+    submitData.append('is_bonus', formData.is_bonus);
     if (image) {
       submitData.append('image', image);
     }
@@ -45,7 +49,12 @@ const QuestionPanel = () => {
       const response = await createQuestion(submitData);
       if (response.success) {
         setSuccess('Question created successfully!');
-        setFormData({ question: '', points: '' });
+        setFormData({ 
+          question: '', 
+          points: '', 
+          requires_image: false, 
+          is_bonus: false 
+        });
         setImage(null);
         setPreview(null);
       } else {
@@ -100,6 +109,40 @@ const QuestionPanel = () => {
           />
         </div>
 
+        <div className="flex space-x-6">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="requires_image"
+              checked={formData.requires_image}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                requires_image: e.target.checked 
+              }))}
+              className="w-4 h-4 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500"
+            />
+            <label htmlFor="requires_image" className="ml-2 block text-sm text-gray-100">
+              Requires Image
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="is_bonus"
+              checked={formData.is_bonus}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                is_bonus: e.target.checked 
+              }))}
+              className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+            />
+            <label htmlFor="is_bonus" className="ml-2 block text-sm text-gray-100">
+              Bonus Question
+            </label>
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium mb-2.5">
             Image (Optional)
@@ -119,7 +162,7 @@ const QuestionPanel = () => {
 
         <button
           type="submit"
-          className="w-full text-black py-2 px-4 rounded-md hover:bg-amber-50">
+          className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 text-white py-2 px-4 rounded-md hover:from-cyan-600 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-900">
           Create Question
         </button>
       </form>
