@@ -209,10 +209,19 @@ export const submitAnswer = async (questionId, formData) => {
         'Content-Type': 'multipart/form-data'
       }
     });
-    console.log('Submit response:', response.data); // Debug log
+    console.log('Submit response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Submit error:', error.response?.data || error);
+    // Handle specific image requirement error
+    if (error.response?.status === 400 && 
+        error.response?.data?.message?.includes('requires an image')) {
+      return {
+        success: false,
+        message: error.response.data.message,
+        requiresImage: true  // Add this flag for frontend handling
+      };
+    }
     return {
       success: false,
       message: error.response?.data?.message || 'Failed to submit answer'
