@@ -172,14 +172,20 @@ export const createQuestion = async (formData) => {
     };
   }
 };
-
-export const getTeamResults = async () => {
+export const getTeamResults = async (lastUpdated = null) => {
   try {
+    const params = lastUpdated ? { lastUpdated } : {};
     const response = await api.get('/teams/results', {
+      params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+    
+    if (response.data.success && response.data.timestamp) {
+      localStorage.setItem('lastResultsUpdate', response.data.timestamp);
+    }
+    
     console.log('Results response:', response.data); // Debug log
     return response.data;
   } catch (error) {
@@ -270,13 +276,20 @@ export const submitAnswer = async (questionId, formData) => {
   }
 };
 
-export const getTeams = async () => {
+export const getTeams = async (lastUpdated = null) => {
   try {
+    const params = lastUpdated ? { lastUpdated } : {};
     const response = await api.get('/teams', {
+      params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+    
+    if (response.data.success && response.data.timestamp) {
+      localStorage.setItem('lastTeamsUpdate', response.data.timestamp);
+    }
+    
     console.log('Teams API response:', response.data);
     return response.data;
   } catch (error) {
@@ -289,22 +302,29 @@ export const getTeams = async () => {
   }
 };
 
-export const getTeamAnswers = async (username) => {
+export const getTeamAnswers = async (username, lastUpdated = null) => {
   try {
+    const params = lastUpdated ? { lastUpdated } : {};
     const response = await api.get(`/teams/${username}/answers`, {
+      params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
 
     if (response.data.success) {
+      if (response.data.timestamp) {
+        localStorage.setItem(`lastAnswersUpdate_${username}`, response.data.timestamp);
+      }
+      
       return {
         success: true,
         answers: response.data.answers.map(answer => ({
           ...answer,
           submitted_at: answer.submitted_at ? new Date(answer.submitted_at) : null,
           reviewed_at: answer.reviewed_at ? new Date(answer.reviewed_at) : null
-        }))
+        })),
+        timestamp: response.data.timestamp
       };
     } else {
       throw new Error(response.data.message);
@@ -329,6 +349,11 @@ export const reviewAnswer = async (username, answerId, isAccepted) => {
         }
       }
     );
+    
+    if (response.data.success && response.data.timestamp) {
+      localStorage.setItem(`lastReviewUpdate_${username}`, response.data.timestamp);
+    }
+    
     return response.data;
   } catch (error) {
     console.error('Error reviewing answer:', error);

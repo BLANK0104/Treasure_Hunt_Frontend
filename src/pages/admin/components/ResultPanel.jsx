@@ -1,14 +1,67 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getTeamResults } from '../../../services/api';
 
 const ResultPanel = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const pollingIntervalRef = useRef(null);
 
   useEffect(() => {
+    // Initial fetch
     fetchResults();
+    
+    // Set up polling interval (every 15 seconds)
+    pollingIntervalRef.current = setInterval(() => {
+      refreshData();
+    }, 15000);
+    
+    // Clean up interval on component unmount
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
   }, []);
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    await fetchResults(false);
+    setRefreshing(false);
+  };
+
+  const fetchResults = async (showLoading = true) => {
+    try {
+      if (showLoading) setLoading(true);
+      setError(null);
+      
+      const response = await getTeamResults();
+      
+      if (response.success) {
+        // Sort results by points (descending) and then by time (ascending)
+        const sortedResults = [...response.results].sort((a, b) => {
+          // First sort by points (higher points first)
+          if (b.total_points !== a.total_points) {
+            return b.total_points - a.total_points;
+          }
+          // If points are equal, sort by time (less time first)
+          return (a.total_time || Number.MAX_VALUE) - (b.total_time || Number.MAX_VALUE);
+        });
+        
+        setResults(sortedResults);
+        setLastUpdated(new Date());
+      } else {
+        setError(response.message);
+      }
+    } catch (err) {
+      setError('Failed to fetch results');
+      console.error('Error fetching results:', err);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
 
   const formatTime = (minutes) => {
     if (!minutes) return 'N/A';
@@ -17,25 +70,7 @@ const ResultPanel = () => {
     return `${hours}h ${remainingMinutes}m`;
   };
 
-  const fetchResults = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await getTeamResults();
-      
-      if (response.success) {
-        setResults(response.results);
-      } else {
-        setError(response.message);
-      }
-    } catch (err) {
-      setError('Failed to fetch results');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-xl text-gray-600">Loading...</div>
@@ -43,17 +78,42 @@ const ResultPanel = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-xl text-red-600">{error}</div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-300">Team Results</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold text-gray-300">Team Results</h2>
+        
+        <div className="flex items-center gap-4">
+          {lastUpdated && (
+            <span className="text-sm text-gray-400">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
+          
+          <button 
+            onClick={refreshData} 
+            disabled={refreshing} 
+            className="flex items-center px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md disabled:opacity-70"
+          >
+            <svg 
+              className={`w-4 h-4 mr-1 ${refreshing ? 'animate-spin' : ''}`}
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+      </div>
+      
+      {error && (
+        <div className="text-red-500 mb-4">
+          Error: {error}
+        </div>
+      )}
       
       {results.length === 0 ? (
         <div className="text-gray-500 bg-white p-4 rounded-lg shadow">
@@ -80,9 +140,16 @@ const ResultPanel = () => {
                     index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                   } ${
                     index < 3 ? 'font-semibold' : ''
+                  } ${
+                    index === 0 ? 'bg-yellow-100' : ''
                   }`}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-gray-800">{index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-gray-800">
+                    {index + 1}
+                    {index === 0 && (
+                      <span className="ml-2 text-yellow-600">🏆 Winner</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-800">{result.username}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-800">{result.total_points}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-gray-800">
@@ -98,6 +165,12 @@ const ResultPanel = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      
+      {refreshing && (
+        <div className="text-center text-gray-500 mt-2">
+          Refreshing data...
         </div>
       )}
     </div>
