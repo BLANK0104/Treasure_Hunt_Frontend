@@ -80,7 +80,7 @@ const QuestionDisplay = ({ question, points, requiresImage, imageUrl, apiUrl }) 
             </p>
           </div>
           <p className="text-cyan-400/80 text-xs mt-2 ml-7">
-            Accepted formats: JPG, PNG, JPEG (Max size: 10MB)
+            Accepted formats: JPG, PNG, JPEG (Max size: 25MB)
           </p>
         </motion.div>
       )}

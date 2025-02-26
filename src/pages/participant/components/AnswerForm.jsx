@@ -39,7 +39,7 @@ const AnswerForm = ({
                 </svg>
               </div>
               <div className="text-cyan-200 text-sm">Click to capture an image</div>
-              <div className="text-gray-500 text-xs mt-1">Max size: 10MB</div>
+              <div className="text-gray-500 text-xs mt-1">Max size: 25MB</div>
               <input 
                 type="file" 
                 accept="image/*" 
