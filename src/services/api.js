@@ -48,6 +48,41 @@ api.interceptors.response.use(
   }
 );
 
+// Add response interceptor for debug logging and session management
+api.interceptors.response.use(
+  (response) => {
+    console.log('Response:', { 
+      url: response.config.url, 
+      status: response.status, 
+      data: response.data 
+    });
+    return response;
+  },
+  (error) => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+    
+    // Check if the error is due to an expired session
+    if (error.response?.status === 401 && 
+        error.response?.data?.sessionExpired) {
+      
+      // Clear local storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Redirect to login page with appropriate message
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login?expired=true';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 export const loginUser = async (credentials) => {
   try {
     const response = await api.post('/users/login', {

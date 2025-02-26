@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { loginUser, registerUser } from '../../services/api';
 
 const StarField = () => (
@@ -70,30 +70,66 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('participant');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [activeInput, setActiveInput] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check for expired session notification
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('expired') === 'true') {
+      setError('Your previous session has been logged out because you logged in from this device.');
+    }
+  }, [location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
 
     // Convert username to lowercase before sending to the API
     const lowercaseUsername = username.toLowerCase();
 
-    const response = isLogin 
-      ? await loginUser({ username: lowercaseUsername, password })
-      : await registerUser({ username: lowercaseUsername, password, role });
+    try {
+      const response = isLogin 
+        ? await loginUser({ username: lowercaseUsername, password })
+        : await registerUser({ username: lowercaseUsername, password, role });
 
-    if (response.success) {
-      if (isLogin) {
-        const { role } = response.user;
-        navigate(role === 'admin' ? '/admin' : '/participant');
+      console.log("API Response:", response); // Debug log
+
+      if (response.success) {
+        if (isLogin) {
+          // If there was a previous session on another device
+          if (response.previousSession) {
+            setSuccessMessage('Your previous session on another device has been logged out.');
+          }
+          
+          // Store authentication data in localStorage
+          localStorage.setItem('token', response.token || 'dummy-token');
+          localStorage.setItem('userRole', response.user.role);
+          
+          console.log("User authenticated as:", response.user.role); // Debug log
+          
+          // Navigate based on role (with slight delay if showing a message)
+          const userRole = response.user.role;
+          if (successMessage) {
+            setTimeout(() => {
+              navigate(userRole === 'admin' ? '/admin' : '/participant');
+            }, 1500);
+          } else {
+            navigate(userRole === 'admin' ? '/admin' : '/participant');
+          }
+        } else {
+          setIsLogin(true);
+          setSuccessMessage('Registration successful! Please login.');
+        }
       } else {
-        setIsLogin(true);
-        setError('Registration successful! Please login.');
+        setError(response.message || 'Authentication failed');
       }
-    } else {
-      setError(response.message);
+    } catch (error) {
+      console.error("Login error:", error);
+      setError('An error occurred during authentication');
     }
   };
 
@@ -163,6 +199,7 @@ const Login = () => {
               transition: 'all 0.3s ease',
               backdropFilter: 'blur(5px)'
             }}
+            type="button"
           >
             Participant
           </button>
@@ -178,6 +215,7 @@ const Login = () => {
               transition: 'all 0.3s ease',
               backdropFilter: 'blur(5px)'
             }}
+            type="button"
           >
             Admin
           </button>
@@ -194,6 +232,19 @@ const Login = () => {
               border: '1px solid rgba(255,68,68,0.2)'
             }}>
               {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div style={{
+              color: '#44ff44',
+              backgroundColor: 'rgba(68,255,68,0.1)',
+              padding: '10px',
+              borderRadius: '5px',
+              marginBottom: '15px',
+              border: '1px solid rgba(68,255,68,0.2)'
+            }}>
+              {successMessage}
             </div>
           )}
 
