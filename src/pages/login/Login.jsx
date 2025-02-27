@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { loginUser, registerUser } from '../../services/api';
 
+// Get event end date from environment variables with a fallback
+const EVENT_END_DATE = import.meta.env.VITE_EVENT_END_DATE || '2025-02-28T17:00:00';
+
 const StarField = () => (
   <div style={{
     position: 'fixed',
@@ -75,18 +78,57 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check for expired session notification
+  // Real-time check of event status - this is the core function
+  // that will be called whenever we need to check if event has ended
+  const isEventEnded = () => {
+    const currentDate = new Date();
+    const eventEndDate = new Date(EVENT_END_DATE);
+    return currentDate >= eventEndDate;
+  };
+
+  // Check for expired session notification and event status when role changes
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('expired') === 'true') {
-      setError('Your previous session has been logged out because you logged in from this device.');
+      setError('Your previous session has been logged out because you logged in from another device.');
+    } else if (params.get('expired') === 'event') {
+      // Only show the event ended message for participants
+      if (role === 'participant') {
+        setError('The treasure hunt event has ended. Thank you for participating!');
+      }
     }
-  }, [location]);
+    
+    // Check if event has ended when role changes
+    checkEventStatus();
+  }, [location, role]);
+
+  const checkEventStatus = () => {
+    const hasEnded = isEventEnded();
+    
+    // Only block participants, admins can continue
+    if (hasEnded && role === 'participant') {
+      setError('The Ambiora Treasure Hunt has ended. Thank you for participating!');
+    } else if (error === 'The Ambiora Treasure Hunt has ended. Thank you for participating!' && role === 'admin') {
+      // Clear error message when switching to admin role
+      setError('');
+    }
+    
+    return hasEnded;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
+
+    // Check if event has ended right now
+    const hasEnded = isEventEnded();
+    
+    // Block ONLY participants if event has ended - admins can always log in
+    if (hasEnded && role === 'participant') {
+      setError('The Ambiora Treasure Hunt has ended. Thank you for participating!');
+      return;
+    }
 
     // Convert username to lowercase before sending to the API
     const lowercaseUsername = username.toLowerCase();
@@ -96,29 +138,68 @@ const Login = () => {
         ? await loginUser({ username: lowercaseUsername, password })
         : await registerUser({ username: lowercaseUsername, password, role });
 
-      console.log("API Response:", response); // Debug log
+      console.log("API Response:", response);
 
       if (response.success) {
         if (isLogin) {
+          // Check AGAIN if event has ended before proceeding (only for participants)
+          // This double-check ensures that if the event ends during the API call, we still catch it
+          const finalEventCheck = isEventEnded();
+          if (finalEventCheck && role === 'participant') {
+            setError('The Ambiora Treasure Hunt has ended. Thank you for participating!');
+            return;
+          }
+          
           // If there was a previous session on another device
           if (response.previousSession) {
             setSuccessMessage('Your previous session on another device has been logged out.');
           }
           
-          // Store authentication data in localStorage
-          localStorage.setItem('token', response.token || 'dummy-token');
-          localStorage.setItem('userRole', response.user.role);
+          // Always store auth data for admins, only store for participants if event hasn't ended
+          const isParticipantAndEnded = role === 'participant' && isEventEnded();
           
-          console.log("User authenticated as:", response.user.role); // Debug log
-          
-          // Navigate based on role (with slight delay if showing a message)
-          const userRole = response.user.role;
-          if (successMessage) {
-            setTimeout(() => {
+          if (!isParticipantAndEnded) {
+            // Store authentication data in localStorage
+            localStorage.setItem('token', response.token || 'dummy-token');
+            localStorage.setItem('userRole', response.user.role);
+            
+            console.log("User authenticated as:", response.user.role);
+            
+            const userRole = response.user.role;
+            
+            // Final check before navigation (only for participants)
+            if (userRole === 'participant' && isEventEnded()) {
+              setError('The Ambiora Treasure Hunt has ended. Thank you for participating!');
+              localStorage.removeItem('token');
+              localStorage.removeItem('userRole');
+              return;
+            }
+            
+            if (successMessage) {
+              setTimeout(() => {
+                // One last check before navigating (only for participants)
+                if (userRole === 'participant' && isEventEnded()) {
+                  setError('The Ambiora Treasure Hunt has ended. Thank you for participating!');
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('userRole');
+                  return;
+                }
+                // Navigate to appropriate page based on role
+                navigate(userRole === 'admin' ? '/admin' : '/participant');
+              }, 1500);
+            } else {
+              // One last check before navigating (only for participants)
+              if (userRole === 'participant' && isEventEnded()) {
+                setError('The Ambiora Treasure Hunt has ended. Thank you for participating!');
+                localStorage.removeItem('token');
+                localStorage.removeItem('userRole');
+                return;
+              }
+              // Navigate to appropriate page based on role
               navigate(userRole === 'admin' ? '/admin' : '/participant');
-            }, 1500);
+            }
           } else {
-            navigate(userRole === 'admin' ? '/admin' : '/participant');
+            setError('The Ambiora Treasure Hunt has ended. Thank you for participating!');
           }
         } else {
           setIsLogin(true);
@@ -132,6 +213,13 @@ const Login = () => {
       setError('An error occurred during authentication');
     }
   };
+
+  // Clear event ended error when switching to admin role
+  useEffect(() => {
+    if (role === 'admin' && error === 'The Ambiora Treasure Hunt has ended. Thank you for participating!') {
+      setError('');
+    }
+  }, [role, error]);
 
   return (
     <div style={{

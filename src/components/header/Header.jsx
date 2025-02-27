@@ -1,7 +1,8 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { logoutUser } from '../../services/api';
+import CountdownTimer from './CountdownTimer';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ const Header = () => {
     const result = await logoutUser();
     if (result.success) {
       console.log('User logged out successfully');
+      localStorage.removeItem('token');
+      localStorage.removeItem('userRole');
       navigate('/login');
     } else {
       console.error('Logout failed:', result.message);
@@ -39,17 +42,21 @@ const Header = () => {
           <div className="absolute -inset-1 bg-cyan-500 opacity-20 blur-lg transition-all duration-300"></div>
         </div>
 
-          <button 
-            onClick={handleLogout}
-            className="relative flex-shrink-0 min-w-[40px] min-h-[40px] w-10 h-10 md:w-14 md:h-14 rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 flex items-center justify-center cursor-pointer hover:from-gray-700 hover:to-gray-600 transition-all duration-300"
-          >
-            <X className="w-6 h-6 min-w-[24px] min-h-[24px] md:w-7 md:h-7 text-cyan-400 transform transition-transform duration-300 hover:rotate-90" />
-            <span className="sr-only">Logout</span>
-          </button>
-
-              </div>
-            </header>
-          );
-        };
+        <button 
+          onClick={handleLogout}
+          className="relative flex-shrink-0 min-w-[40px] min-h-[40px] w-10 h-10 md:w-14 md:h-14 rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 flex items-center justify-center cursor-pointer hover:from-gray-700 hover:to-gray-600 transition-all duration-300"
+        >
+          <LogOut className="w-6 h-6 min-w-[24px] min-h-[24px] md:w-7 md:h-7 text-cyan-400 transform transition-transform duration-300 hover:scale-110" />
+          <span className="sr-only">Logout</span>
+        </button>
+      </div>
+      
+      {/* Countdown Timer below header */}
+      <div className="bg-gradient-to-r from-black via-gray-900 to-black py-2 text-center">
+        <CountdownTimer />
+      </div>
+    </header>
+  );
+};
 
 export default Header;
