@@ -107,7 +107,7 @@ const Login = () => {
     
     // Only block participants, admins can continue
     if (hasEnded && role === 'participant') {
-      setError('The Ambiora Treasure Hunt has ended. Thank you for participating!');
+      setError('The Ambiora Treasure Hunt has ended. Thank you for participating! Please return back to AMPHITHEATRE.');
     } else if (error === 'The Ambiora Treasure Hunt has ended. Thank you for participating!' && role === 'admin') {
       // Clear error message when switching to admin role
       setError('');
@@ -131,7 +131,7 @@ const Login = () => {
     }
 
     // Convert username to lowercase before sending to the API
-    const lowercaseUsername = username.toLowerCase();
+    const lowercaseUsername = username
 
     try {
       const response = isLogin 
