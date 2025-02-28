@@ -363,3 +363,142 @@ export const reviewAnswer = async (username, answerId, isAccepted) => {
     };
   }
 };
+
+export const updateQuestion = async (id, formData) => {
+  try {
+    const response = await api.put(`/questions/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to update question'
+    };
+  }
+};
+
+export const deleteQuestion = async (questionId) => {
+  try {
+    const response = await api.delete(`/questions/${questionId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to delete question'
+    };
+  }
+};
+
+const handleConfirmDelete = async () => {
+  if (!deletingQuestion) return;
+  
+  console.log('Starting delete operation for question:', deletingQuestion.id);
+  setDeleteStatus({ loading: true, message: 'Deleting question...', error: false });
+  
+  try {
+    console.log('Calling API to delete question:', deletingQuestion.id);
+    const response = await deleteQuestion(deletingQuestion.id);
+    console.log('Delete API response:', response);
+    
+    if (response.success) {
+      console.log('Delete successful, updating UI');
+      // Update the local questions state by removing the deleted question
+      setQuestions(questions.filter(q => q.id !== deletingQuestion.id));
+      
+      setDeleteStatus({
+        loading: false,
+        message: 'Question deleted successfully!',
+        error: false
+      });
+      
+      // Close the modal after a short delay
+      console.log('Scheduling modal close');
+      setTimeout(() => {
+        console.log('Closing delete modal');
+        setDeletingQuestion(null);
+      }, 1500);
+    } else {
+      console.error('Delete failed:', response.message);
+      setDeleteStatus({
+        loading: false,
+        message: response.message || 'Failed to delete question',
+        error: true
+      });
+    }
+  } catch (err) {
+    console.error('Error in delete operation:', err);
+    setDeleteStatus({
+      loading: false,
+      message: 'An error occurred while deleting the question',
+      error: true
+    });
+  }
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!editingQuestion) return;
+  
+  console.log('Starting update operation for question:', editingQuestion.id);
+  setUpdateStatus({ loading: true, message: 'Updating question...', error: false });
+  
+  const submitData = new FormData();
+  submitData.append('question', formData.question);
+  submitData.append('points', formData.points);
+  submitData.append('requires_image', formData.requires_image);
+  submitData.append('is_bonus', formData.is_bonus);
+  submitData.append('remove_image', formData.remove_image);
+  
+  if (formData.image) {
+    submitData.append('image', formData.image);
+  }
+
+  try {
+    console.log('Calling API to update question:', editingQuestion.id);
+    const response = await updateQuestion(editingQuestion.id, submitData);
+    console.log('Update API response:', response);
+    
+    if (response.success) {
+      console.log('Update successful, updating UI');
+      // Update the local questions state
+      setQuestions(questions.map(q => 
+        q.id === editingQuestion.id ? response.question : q
+      ));
+      
+      setUpdateStatus({
+        loading: false,
+        message: 'Question updated successfully!',
+        error: false
+      });
+      
+      // Close the modal after a short delay
+      console.log('Scheduling modal close');
+      setTimeout(() => {
+        console.log('Closing edit modal');
+        handleCloseModal();
+      }, 1500);
+    } else {
+      console.error('Update failed:', response.message);
+      setUpdateStatus({
+        loading: false,
+        message: response.message || 'Failed to update question',
+        error: true
+      });
+    }
+  } catch (err) {
+    console.error('Error in update operation:', err);
+    setUpdateStatus({
+      loading: false,
+      message: 'An error occurred while updating the question',
+      error: true
+    });
+  }
+};
