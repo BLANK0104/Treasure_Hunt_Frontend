@@ -4,9 +4,9 @@ const ProgressBar = ({ questionNumber }) => {
   // Ensure questionNumber is a number and not less than 1
   const currentQuestion = Math.max(1, Number(questionNumber));
   
-  // Calculate milestone (every 10 questions)
-  const currentMilestone = Math.ceil(currentQuestion / 10) * 10;
-  const progressToMilestone = ((currentQuestion % 10) || 10) / 10 * 100;
+  // Calculate milestone (every 15 questions)
+  const currentMilestone = Math.ceil(currentQuestion / 15) * 15;
+  const progressToMilestone = ((currentQuestion % 15) || 15) / 15 * 100;
 
   return (
     <div className="mb-4 flex justify-between items-center">

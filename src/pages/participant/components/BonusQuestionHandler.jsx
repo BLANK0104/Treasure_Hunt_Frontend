@@ -6,15 +6,14 @@ const BonusQuestionHandler = ({
   onSwitchToBonus, 
   onSwitchToNormal, 
   isBonusMode,
-  completedBonus,
-  bonusAttempted = false // New prop to track if bonus was attempted
+  completedBonus 
 }) => {
   const [showBonusButton, setShowBonusButton] = useState(false);
 
   useEffect(() => {
-    // Show bonus button when we reach questions 11, 21, 31, etc.
-    const currentMilestone = Math.floor((questionNumber - 1) / 10);
-    const shouldShowBonus = questionNumber % 10 === 1 && completedBonus < currentMilestone;
+    // Show bonus button when we reach questions 16, 31, 46, etc.
+    const currentMilestone = Math.floor((questionNumber - 1) / 15);
+    const shouldShowBonus = questionNumber % 15 === 1 && completedBonus < currentMilestone;
     
     console.log({
       questionNumber,
@@ -40,7 +39,7 @@ const BonusQuestionHandler = ({
           Take Bonus Question! (100 points)
         </motion.button>
       )}
-      {isBonusMode && !bonusAttempted && (
+      {isBonusMode && (
         <motion.button
           className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full text-white font-semibold shadow-lg hover:shadow-blue-500/20"
           whileHover={{ scale: 1.05 }}
