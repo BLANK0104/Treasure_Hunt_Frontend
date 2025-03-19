@@ -341,81 +341,106 @@ const TeamPanel = () => {
             ) : (
               <div className="space-y-4">
                 {teamAnswers.map((answer) => (
-                  <div key={answer.id} className="border rounded-lg p-4 bg-white shadow-sm">
-                    <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                      <div className="space-y-2 w-full md:w-3/4">
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-medium text-gray-800">
-                            Question {answer.question_number}
-                            {answer.is_bonus && ' (Bonus)'}
-                          </h3>
-                          <div className="text-sm text-gray-500">
-                            <div>Submitted: {formatDateTime(answer.submitted_at)}</div>
-                            {answer.is_reviewed && (
-                              <div className="mt-1">
-                                Reviewed: {formatDateTime(answer.reviewed_at)}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-gray-600">{answer.question_text}</p>
-                        <p className="text-sm text-blue-600">Points: {answer.points}</p>
-                        
-                        <div className="mt-4">
-                          <p className="font-medium text-gray-800">Answer:</p>
-                          <p className="mt-1 text-gray-700">{answer.text_answer}</p>
-                          
-                          {answer.image_answer_url && (
-                            <div className="mt-2">
-                              <img
-                                src={getImageUrl(answer.image_answer_url)}
-                                alt="Answer submission"
-                                className="w-full max-w-lg rounded-lg shadow-sm object-contain"
-                                style={{ maxHeight: '300px' }}
-                                onError={(e) => {
-                                  console.error('Image load error:', e.target.src);
-                                  e.target.style.display = 'none';
-                                  const errorDiv = document.createElement('div');
-                                  errorDiv.className = 'text-red-500 text-sm mt-2';
-                                  errorDiv.textContent = 'Failed to load image';
-                                  e.target.parentElement.appendChild(errorDiv);
-                                }}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                  // Replace the answer card rendering section with this updated version
 
-                      <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
-                        {!answer.is_reviewed ? (
-                          <>
-                            <button
-                              onClick={(e) => handleReview(answer.id, true, e)}
-                              className="flex-1 md:flex-none bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
-                              disabled={reviewingAnswers[answer.id]}
-                            >
-                              {reviewingAnswers[answer.id] ? 'Processing...' : 'Accept'}
-                            </button>
-                            <button
-                              onClick={(e) => handleReview(answer.id, false, e)}
-                              className="flex-1 md:flex-none bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
-                              disabled={reviewingAnswers[answer.id]}
-                            >
-                              {reviewingAnswers[answer.id] ? 'Processing...' : 'Reject'}
-                            </button>
-                          </>
-                        ) : (
-                          <div className={`text-center px-3 py-1 rounded-lg ${
-                            answer.is_accepted 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {answer.is_accepted ? 'Accepted' : 'Rejected'}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+<div key={answer.id} className="border rounded-lg p-4 bg-white shadow-sm">
+  <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+    <div className="space-y-2 w-full md:w-3/4">
+      <div className="flex justify-between items-start">
+        <h3 className="font-medium text-gray-800">
+          Question {answer.question_number}
+          {answer.is_bonus && ' (Bonus)'}
+        </h3>
+        <div className="text-sm text-gray-500">
+          <div>Submitted: {formatDateTime(answer.submitted_at)}</div>
+          {answer.is_reviewed && (
+            <div className="mt-1">
+              Reviewed: {formatDateTime(answer.reviewed_at)}
+            </div>
+          )}
+        </div>
+      </div>
+      <p className="text-gray-600">{answer.question_text}</p>
+      <p className="text-sm text-blue-600">Points: {answer.points}</p>
+      
+      {/* Display question image if available */}
+      {answer.question_image_url && (
+        <div className="mt-2">
+          <p className="font-medium text-gray-800 mb-2">Question Image:</p>
+          <img
+            src={getImageUrl(answer.question_image_url)}
+            alt="Question"
+            className="w-full max-w-lg rounded-lg shadow-sm object-contain"
+            style={{ maxHeight: '300px' }}
+            onError={(e) => {
+              console.error('Question image load error:', e.target.src);
+              e.target.style.display = 'none';
+              const errorDiv = document.createElement('div');
+              errorDiv.className = 'text-red-500 text-sm mt-2';
+              errorDiv.textContent = 'Failed to load question image';
+              e.target.parentElement.appendChild(errorDiv);
+            }}
+          />
+        </div>
+      )}
+      
+      <div className="mt-4">
+        <p className="font-medium text-gray-800">Answer:</p>
+        <p className="mt-1 text-gray-700">{answer.text_answer}</p>
+        
+        {/* Display answer image if available */}
+        {answer.image_answer_url && (
+          <div className="mt-2">
+            <p className="font-medium text-gray-800 mb-2">Answer Image:</p>
+            <img
+              src={getImageUrl(answer.image_answer_url)}
+              alt="Answer submission"
+              className="w-full max-w-lg rounded-lg shadow-sm object-contain"
+              style={{ maxHeight: '300px' }}
+              onError={(e) => {
+                console.error('Answer image load error:', e.target.src);
+                e.target.style.display = 'none';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-red-500 text-sm mt-2';
+                errorDiv.textContent = 'Failed to load answer image';
+                e.target.parentElement.appendChild(errorDiv);
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto">
+      {!answer.is_reviewed ? (
+        <>
+          <button
+            onClick={(e) => handleReview(answer.id, true, e)}
+            className="flex-1 md:flex-none bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
+            disabled={reviewingAnswers[answer.id]}
+          >
+            {reviewingAnswers[answer.id] ? 'Processing...' : 'Accept'}
+          </button>
+          <button
+            onClick={(e) => handleReview(answer.id, false, e)}
+            className="flex-1 md:flex-none bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors text-sm md:text-base"
+            disabled={reviewingAnswers[answer.id]}
+          >
+            {reviewingAnswers[answer.id] ? 'Processing...' : 'Reject'}
+          </button>
+        </>
+      ) : (
+        <div className={`text-center px-3 py-1 rounded-lg ${
+          answer.is_accepted 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-red-100 text-red-800'
+        }`}>
+          {answer.is_accepted ? 'Accepted' : 'Rejected'}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
                 ))}
               </div>
             )}

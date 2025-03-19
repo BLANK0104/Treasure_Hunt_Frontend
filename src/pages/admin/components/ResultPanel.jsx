@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getTeamResults } from '../../../services/api';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const ResultPanel = () => {
   const [results, setResults] = useState([]);
@@ -70,6 +72,42 @@ const ResultPanel = () => {
     return `${hours}h ${remainingMinutes}m`;
   };
 
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const currentDate = new Date().toLocaleDateString();
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Treasure Hunt Results', 14, 22);
+    
+    // Add date
+    doc.setFontSize(12);
+    doc.text(`Generated: ${currentDate}`, 14, 30);
+    
+    // Prepare table data
+    const tableData = results.map((result, index) => [
+      index + 1,
+      result.username,
+      result.total_points,
+      `${result.normal_solved} + ${result.bonus_solved} bonus`,
+      formatTime(result.total_time),
+      result.last_submission_time || 'N/A'
+    ]);
+    
+    // Generate table
+    autoTable(doc, {
+      startY: 35,
+      head: [['Rank', 'Team', 'Total Points', 'Questions Solved', 'Total Time', 'Last Submission']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+      styles: { fontSize: 10 }
+    });
+    
+    // Save PDF
+    doc.save('treasure_hunt_results.pdf');
+  };
+
   if (loading && !refreshing) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -89,6 +127,23 @@ const ResultPanel = () => {
               Last updated: {lastUpdated.toLocaleTimeString()}
             </span>
           )}
+          
+          <button
+            onClick={exportToPDF}
+            disabled={results.length === 0}
+            className="flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md disabled:opacity-70"
+          >
+            <svg 
+              className="w-4 h-4 mr-1"
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Download Results
+          </button>
           
           <button 
             onClick={refreshData} 

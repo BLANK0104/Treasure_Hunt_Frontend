@@ -131,7 +131,7 @@ const Login = () => {
     }
 
     // Convert username to lowercase before sending to the API
-    const lowercaseUsername = username.toLowerCase();
+    const lowercaseUsername = username
 
     try {
       const response = isLogin 
@@ -266,8 +266,48 @@ const Login = () => {
           textAlign: 'center',
           textShadow: '0 0 10px rgba(0,255,255,0.5)'
         }}>
-          Sign in to your account
+          {isLogin ? 'Sign in to your account' : 'Create new account'}
         </h2>
+
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '10px',
+          marginBottom: '20px'
+        }}>
+          <button
+            onClick={() => setRole('participant')}
+            style={{
+              padding: '10px 20px',
+              background: role === 'participant' ? 'rgba(0,255,255,0.9)' : 'rgba(0,255,255,0.1)',
+              color: role === 'participant' ? '#000' : '#00ffff',
+              border: '1px solid rgba(0,255,255,0.3)',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              backdropFilter: 'blur(5px)'
+            }}
+            type="button"
+          >
+            Participant
+          </button>
+          <button
+            onClick={() => setRole('admin')}
+            style={{
+              padding: '10px 20px',
+              background: role === 'admin' ? 'rgba(0,255,255,0.9)' : 'rgba(0,255,255,0.1)',
+              color: role === 'admin' ? '#000' : '#00ffff',
+              border: '1px solid rgba(0,255,255,0.3)',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              backdropFilter: 'blur(5px)'
+            }}
+            type="button"
+          >
+            Admin
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit}>
           {error && (
@@ -358,8 +398,28 @@ const Login = () => {
               boxShadow: '0 0 15px rgba(0,255,255,0.3)'
             }}
           >
-            Sign in
+            {isLogin ? 'Sign in' : 'Register'}
           </button>
+
+          <div style={{
+            textAlign: 'center',
+            marginTop: '15px'
+          }}>
+            <button
+              type="button"
+              onClick={() => setIsLogin(!isLogin)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#00ffff',
+                cursor: 'pointer',
+                fontSize: '14px',
+                textShadow: '0 0 5px rgba(0,255,255,0.3)'
+              }}
+            >
+              {isLogin ? 'Need an account? Register' : 'Already have an account? Sign in'}
+            </button>
+          </div>
         </form>
       </div>
     </div>
